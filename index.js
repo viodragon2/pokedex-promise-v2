@@ -7,9 +7,13 @@ const CACHE_LIMIT = 1000000 * 1000; // 11 days
 const pokeUrl = 'http://pokeapi.co';
 const versionUrl = '/api/v2/';
 
-getJSON = function (url, cb) {
+getJSON = function (opts) {
 
   // retrive possible content from volatile memory
+  const url = opts.url;
+  const cb = opts.callback;
+  const withCredentials = opts.withCredentials;
+
   const cachedResult = cache.get(url);
   if (cachedResult !== null) {
     return new Promise(function(resolve, reject) {
@@ -24,6 +28,7 @@ getJSON = function (url, cb) {
     const options = {
       url: url,
       json: true,
+      withCredentials: withCredentials
     };
     return rp.get(options)
       .catch(function (error) {
@@ -117,7 +122,9 @@ const endpoints = [
 ];
 
 const Pokedex = (function() {
-  function Pokedex(){}
+  function Pokedex(opts){
+    this.opts = opts || {};
+  }
 
   // add to Pokedex.prototype all our endpoint functions
   endpoints.forEach(function (endpoint) {
@@ -126,7 +133,7 @@ const Pokedex = (function() {
 
         // if the user has submitted a Name or an Id, return the Json promise
         if (typeof input === 'number' || typeof input === 'string') {
-          return getJSON(pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', cb); 
+          return getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', callback: cb});
         }
 
         // if the user has submitted an Array
@@ -139,7 +146,7 @@ const Pokedex = (function() {
             async.forEachOf(input, function (name){
 
               //get current input data and then try to resolve
-              getJSON(pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', function (response){
+              getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', callback: function (response){
                 toReturn.push(response);
                 if(toReturn.length === input.length){
                   if (cb) {
@@ -147,7 +154,7 @@ const Pokedex = (function() {
                   }
                   resolve(toReturn);
                 }
-              });
+              }});
             })
           });
         }
