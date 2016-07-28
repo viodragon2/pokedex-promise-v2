@@ -158,6 +158,8 @@ const Pokedex = (function() {
             })
           });
         }
+      } else {
+        return getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: pokeUrl +  versionUrl + endpoint[1], callback: cb});
       }
     }
   });
