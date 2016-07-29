@@ -133,7 +133,7 @@ const Pokedex = (function() {
 
         // if the user has submitted a Name or an Id, return the Json promise
         if (typeof input === 'number' || typeof input === 'string') {
-          return getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', callback: cb});
+          return this.request(pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', cb);
         }
 
         // if the user has submitted an Array
@@ -146,7 +146,7 @@ const Pokedex = (function() {
             async.forEachOf(input, function (name){
 
               //get current input data and then try to resolve
-              getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', callback: function (response){
+              this.request(pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', function (response){
                 toReturn.push(response);
                 if(toReturn.length === input.length){
                   if (cb) {
@@ -154,15 +154,20 @@ const Pokedex = (function() {
                   }
                   resolve(toReturn);
                 }
-              }});
+              });
             })
           });
         }
       } else {
-        return getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: pokeUrl +  versionUrl + endpoint[1], callback: cb});
+        return this.request(pokeUrl +  versionUrl + endpoint[1], cb);
       }
     }
   });
+
+  Pokedex.prototype.request = function (url, cb) {
+    return getJSON({withCredentials: this.opts.hasOwnProperty('withCredentials') ? this.opts.withCredentials : true, url: url, callback: cb});
+  }
+
   return Pokedex;
 })();
 
