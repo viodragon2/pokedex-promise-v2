@@ -128,12 +128,13 @@ const Pokedex = (function() {
 
   // add to Pokedex.prototype all our endpoint functions
   endpoints.forEach(function (endpoint) {
-    Pokedex.prototype[endpoint[0]] = function (input, cb) { 
+    Pokedex.prototype[endpoint[0]] = function (input, cb, params) {
+      var param = params || '';
       if (input) {
 
         // if the user has submitted a Name or an Id, return the Json promise
         if (typeof input === 'number' || typeof input === 'string') {
-          return this.request(this.pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', cb);
+          return this.request(this.pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/' + param, cb);
         }
 
         // if the user has submitted an Array
@@ -146,7 +147,7 @@ const Pokedex = (function() {
             async.forEachOf(input, function (name){
 
               //get current input data and then try to resolve
-              this.request(this.pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', function (response){
+              this.request(this.pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/' + param, function (response){
                 toReturn.push(response);
                 if(toReturn.length === input.length){
                   if (cb) {
@@ -159,7 +160,7 @@ const Pokedex = (function() {
           });
         }
       } else {
-        return this.request(this.pokeUrl +  versionUrl + endpoint[1], cb);
+        return this.request(this.pokeUrl +  versionUrl + endpoint[1] + param, cb);
       }
     }
   });
