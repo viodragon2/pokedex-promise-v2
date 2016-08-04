@@ -4,7 +4,6 @@ const async = require('async');
 
 const CACHE_LIMIT = 1000000 * 1000; // 11 days
 
-const pokeUrl = 'http://pokeapi.co';
 const versionUrl = '/api/v2/';
 
 getJSON = function (opts) {
@@ -122,8 +121,9 @@ const endpoints = [
 ];
 
 const Pokedex = (function() {
-  function Pokedex(opts){
+  function Pokedex(opts, pokeUrl){
     this.opts = opts || {};
+    this.pokeUrl = pokeUrl || 'http://pokeapi.co';
   }
 
   // add to Pokedex.prototype all our endpoint functions
@@ -133,7 +133,7 @@ const Pokedex = (function() {
 
         // if the user has submitted a Name or an Id, return the Json promise
         if (typeof input === 'number' || typeof input === 'string') {
-          return this.request(pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', cb);
+          return this.request(this.pokeUrl +  versionUrl + endpoint[1] + '/' + input + '/', cb);
         }
 
         // if the user has submitted an Array
@@ -146,7 +146,7 @@ const Pokedex = (function() {
             async.forEachOf(input, function (name){
 
               //get current input data and then try to resolve
-              this.request(pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', function (response){
+              this.request(this.pokeUrl +  versionUrl + endpoint[1] + '/' + name + '/', function (response){
                 toReturn.push(response);
                 if(toReturn.length === input.length){
                   if (cb) {
@@ -159,7 +159,7 @@ const Pokedex = (function() {
           });
         }
       } else {
-        return this.request(pokeUrl +  versionUrl + endpoint[1], cb);
+        return this.request(this.pokeUrl +  versionUrl + endpoint[1], cb);
       }
     }
   });
